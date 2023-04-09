@@ -1,5 +1,7 @@
 # PyFastTrack
 
+[![Linux tests](https://github.com/FastTrackOrg/PyFastTrack/actions/workflows/linux_tests.yml/badge.svg)](https://github.com/FastTrackOrg/PyFastTrack/actions/workflows/linux_tests.yml) [![Windows tests](https://github.com/FastTrackOrg/PyFastTrack/actions/workflows/win_tests.yml/badge.svg)](https://github.com/FastTrackOrg/PyFastTrack/actions/workflows/win_tests.yml) [![Macos tests](https://github.com/FastTrackOrg/PyFastTrack/actions/workflows/macos_tests.yml/badge.svg)](https://github.com/FastTrackOrg/PyFastTrack/actions/workflows/macos_tests.yml)
+
 ## About
 
 PyFastTrack is a Python library that provides an easy-to-use solution to integrate the FastTrack software tracking technology in Python projects. The tracking parameters configuration and the tracking results will be entirely compatible with FastTrack.
