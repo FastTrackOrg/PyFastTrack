@@ -126,17 +126,10 @@ class Detector(metaclass=abc.ABCMeta):
             mask, (features["orientation"]*180)/np.pi)
         rotated_mask = np.sum(rotated_mask, axis=1, dtype=np.float64)
         rotated_mask /= np.sum(rotated_mask)
-        # TODO: vectorize for optimization
-        mean = 0
-        for i, j in enumerate(rotated_mask):
-            mean += j * (i + 1)
-        sd = 0
-        skewT = 0
-        for i, j in enumerate(rotated_mask):
-            sd += ((i + 1) - mean)**2 * j
-            skewT += (i + 1)**3 * j
-        sd = np.sqrt(sd)
-        skew = (skewT - 3 * mean * sd**2 - mean**3) / sd**3
+        indexes = np.arange(1, len(rotated_mask)+1, dtype=np.float64)
+        mean = np.sum(indexes*rotated_mask)
+        sd = np.sqrt(np.sum((indexes-mean)**2*rotated_mask))
+        skew = (np.sum(indexes**3*rotated_mask) - 3 * mean * sd**2 - mean**3) / sd**3
         if skew > 0:
             features["orientation"] = self.modulo(
                 features["orientation"] - np.pi)
