@@ -15,7 +15,7 @@ class BaseDetector(metaclass=abc.ABCMeta):
         """Abstract method to be implemented.
 
         This method will take a full image with all the objects to detect and will return
-        a list of tuples (mask, left_coordinate [x, y]) with one object by mask, the object represented by non-zero pixels
+        a list of tuples (mask, left_corner_coordinate [x, y]) with one object by mask, the object represented by non-zero pixels
         and the background by zero pixels.
 
 
@@ -27,7 +27,7 @@ class BaseDetector(metaclass=abc.ABCMeta):
         Returns
         -------
         dict
-            Dictionnary containing the object features. Note that the direction is pi undertermined.
+            List of (mask, left_corner_coord).
 
         """
         pass
@@ -42,18 +42,41 @@ class BaseDetector(metaclass=abc.ABCMeta):
 
         Returns
         -------
-        lsit
+        list
             List of detected objects and their features.
 
         """
-        detection = []
+        detections = []
         for mask, coordinate in self.detect(image):
-            features = self.get_features(mask)
-            self.get_direction(mask, features)
-            features["center"][0] += coordinate[0]
-            features["center"][1] += coordinate[1]
-            detection.append(features)
-        return detection
+            contours, _ = cv2.findContours(
+                mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            data = {"area": cv2.contourArea(
+                contours[0]), "perim": cv2.arcLength(contours[0], True)}
+
+            body = self.get_features(mask)
+            is_left, rotated_mask = self.get_direction(mask, body)
+            body["center"][0] += coordinate[0]
+            body["center"][1] += coordinate[1]
+
+            mask_head = mask[:, 0:int(body["center"][0])]
+            head = self.get_features(mask_head)
+            """__, __ = self.get_direction(mask_head, head)
+            head["center"][0] += coordinate[0]
+            head["center"][1] += coordinate[1]"""
+            # TODO with right coordinate
+
+            mask_tail = mask[:, int(body["center"][0]):-1]
+            tail = self.get_features(mask_tail)
+            """__, __ = self.get_direction(mask_tail, tail)
+            tail["center"][0] += coordinate[0] + body["center"][0]
+            tail["center"][1] += coordinate[1]"""
+            # TODO with right coordinate
+
+            if is_left:
+                detections.append({"3": data, "2": body, "1": tail, "0": head})
+            else:
+                detections.append({"3": data, "2": body, "2": tail, "1": head})
+        return detections
 
     def get_features(self, mask):
         """Get the object features using equivalent ellipse.
@@ -122,16 +145,26 @@ class BaseDetector(metaclass=abc.ABCMeta):
         features : dict
             Object features.
 
+        Returns
+        -------
+        bool
+            Is object left oriented.
+        ndarray
+            Rotated mask.
+
         """
         rotated_mask = scipy.ndimage.rotate(
-            mask, (features["orientation"]*180)/np.pi)
+            mask, (features["orientation"]*180)/np.pi, reshape=False, order=0)
         rotated_mask = np.sum(rotated_mask, axis=1, dtype=np.float64)
-        rotated_mask /= np.sum(rotated_mask)
-        indexes = np.arange(1, len(rotated_mask)+1, dtype=np.float64)
-        mean = np.sum(indexes*rotated_mask)
-        sd = np.sqrt(np.sum((indexes-mean)**2*rotated_mask))
-        skew = (np.sum(indexes**3*rotated_mask) -
+        dist = rotated_mask / np.sum(rotated_mask)
+        indexes = np.arange(1, len(dist)+1, dtype=np.float64)
+        mean = np.sum(indexes*dist)
+        sd = np.sqrt(np.sum((indexes-mean)**2*dist))
+        skew = (np.sum(indexes**3*dist) -
                 3 * mean * sd**2 - mean**3) / sd**3
         if skew > 0:
             features["orientation"] = self.modulo(
                 features["orientation"] - np.pi)
+            return True, rotated_mask
+        else:
+            return False, rotated_mask

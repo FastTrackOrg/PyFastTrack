@@ -53,4 +53,4 @@ def test_process():
     ref["center"][1] += 999
     detector.get_direction(mask, ref)
     test = detector.process(mask)
-    assert ref == test[0]
+    assert ref == test[0]["2"]
