@@ -1,5 +1,5 @@
 import pytest
-import detection
+import base_detector as detection
 import cv2
 import abc
 import numpy as np
@@ -7,7 +7,7 @@ import scipy
 
 
 def instance():
-    class DetectorInstance(detection.Detector):
+    class DetectorInstance(detection.BaseDetector):
         def detect(self, image):
             return [(image, [666, 999])]
 

@@ -5,7 +5,7 @@ import scipy
 import math
 
 
-class Detector(metaclass=abc.ABCMeta):
+class BaseDetector(metaclass=abc.ABCMeta):
     """Abstract class to implement an objects detector.
 
     """
