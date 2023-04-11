@@ -91,7 +91,8 @@ class BaseDetector(metaclass=abc.ABCMeta):
 
         return {"center": [x, y], "orientation": orientation, "major_axis": majAxis, "minor_axis": minAxis}
 
-    def modulo(self, angle):
+    @staticmethod
+    def modulo(angle):
         """Provide the mathematical 2pi modulo.
 
 
@@ -129,7 +130,8 @@ class BaseDetector(metaclass=abc.ABCMeta):
         indexes = np.arange(1, len(rotated_mask)+1, dtype=np.float64)
         mean = np.sum(indexes*rotated_mask)
         sd = np.sqrt(np.sum((indexes-mean)**2*rotated_mask))
-        skew = (np.sum(indexes**3*rotated_mask) - 3 * mean * sd**2 - mean**3) / sd**3
+        skew = (np.sum(indexes**3*rotated_mask) -
+                3 * mean * sd**2 - mean**3) / sd**3
         if skew > 0:
             features["orientation"] = self.modulo(
                 features["orientation"] - np.pi)
