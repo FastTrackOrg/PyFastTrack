@@ -20,14 +20,14 @@ def test_detect():
                          0.00001) == pytest.approx(5.94395, 0.00001)
     # TODO: Precision not comparing with FastTrack C++
     assert pytest.approx(test[0]["0"]["center"][0],
-                         0.1) == pytest.approx(514.327, 0.1)
+                         0.001) == pytest.approx(514.327, 0.001)
     assert pytest.approx(test[0]["0"]["center"][1],
-                         0.1) == pytest.approx(333.12, 0.1)
+                         0.001) == pytest.approx(333.12, 0.001)
     assert pytest.approx(test[0]["0"]["orientation"],
-                         0.01) == pytest.approx(5.81619, 0.01)
+                         0.001) == pytest.approx(5.81619, 0.001)
     assert pytest.approx(test[0]["1"]["center"][0],
-                         0.1) == pytest.approx(499.96, 0.1)
+                         0.001) == pytest.approx(499.96, 0.001)
     assert pytest.approx(test[0]["1"]["center"][1],
-                         0.1) == pytest.approx(327.727, 0.1)
+                         0.001) == pytest.approx(327.727, 0.001)
     assert pytest.approx(test[0]["1"]["orientation"],
-                         0.01) == pytest.approx(6.10226, 0.1)
+                         0.01) == pytest.approx(6.10226, 0.01)
