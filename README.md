@@ -6,6 +6,14 @@
 
 PyFastTrack is a Python library that provides an easy-to-use solution to integrate the FastTrack software tracking technology in Python projects. The tracking parameters configuration and the tracking results will be entirely compatible with FastTrack.
 
+## Roadmap
+
+PyFastTrack is actively developed at a pace depending on the project [funding](https://ko-fi.com/bgallois). The development roadmap is as follows:
+Abstract detection and tracking classes.
+FastTrack detection and tracking classes one-to-one compatible with FastTrack.
+Tracking data exportation base class compatible with FastTrack viewer.
+YOLOv8 segmentation detector class.
+
 ## Usage
 
 PyFastTrack can be integrated using the high-level API:
