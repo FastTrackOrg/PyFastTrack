@@ -54,28 +54,42 @@ class BaseDetector(metaclass=abc.ABCMeta):
                 contours[0]), "perim": cv2.arcLength(contours[0], True)}
 
             body = self.get_features(mask)
-            is_left, rotated_mask = self.get_direction(mask, body)
+            is_left, rotated_mask, rot = self.get_direction(mask, body)
+
+            body_center = np.uintp(np.matmul(rot, np.asarray(
+                [body["center"][0], body["center"][1], 1]).reshape(3, 1)))
+            rot = cv2.invertAffineTransform(rot)
+
+            # TODO: precision not checking with FastTrack C++
+            mask_tail = rotated_mask[:, int(body_center[0, 0])::]
+            tail = self.get_features(mask_tail)
+            a = np.matmul(rot, np.asarray(
+                [tail["center"][0] + body_center[0, 0], tail["center"][1] + body_center[1, 0], 1]).reshape(3, 1))
+            tail["center"][0] = a[0, 0] + coordinate[0]
+            tail["center"][1] = a[1, 0] + coordinate[1]
+            tail["orientation"] = tail["orientation"] - \
+                np.pi * (tail["orientation"] > np.pi)
+            tail["orientation"] = self.modulo(
+                tail["orientation"] + body["orientation"] + np.pi * (np.abs(tail["orientation"]) > 0.5 * np.pi))
+
+            mask_head = rotated_mask[:, 0:int(body_center[0, 0])]
+            head = self.get_features(mask_head)
+            a = np.matmul(rot, np.asarray(
+                [head["center"][0], head["center"][1], 1]).reshape(3, 1))
+            head["center"][0] = a[0, 0] + coordinate[0]
+            head["center"][1] = a[1, 0] + coordinate[1]
+            head["orientation"] = head["orientation"] - \
+                np.pi * (head["orientation"] > np.pi)
+            head["orientation"] = self.modulo(
+                head["orientation"] + body["orientation"] + np.pi * (np.abs(head["orientation"]) > 0.5 * np.pi))
+
             body["center"][0] += coordinate[0]
             body["center"][1] += coordinate[1]
-
-            mask_head = mask[:, 0:int(body["center"][0])]
-            head = self.get_features(mask_head)
-            """__, __ = self.get_direction(mask_head, head)
-            head["center"][0] += coordinate[0]
-            head["center"][1] += coordinate[1]"""
-            # TODO with right coordinate
-
-            mask_tail = mask[:, int(body["center"][0]):-1]
-            tail = self.get_features(mask_tail)
-            """__, __ = self.get_direction(mask_tail, tail)
-            tail["center"][0] += coordinate[0] + body["center"][0]
-            tail["center"][1] += coordinate[1]"""
-            # TODO with right coordinate
 
             if is_left:
                 detections.append({"3": data, "2": body, "1": tail, "0": head})
             else:
-                detections.append({"3": data, "2": body, "2": tail, "1": head})
+                detections.append({"3": data, "2": body, "0": tail, "1": head})
         return detections
 
     def get_features(self, mask):
@@ -105,14 +119,14 @@ class BaseDetector(metaclass=abc.ABCMeta):
         else:
             orientation = 0
 
-        majAxis = 2 * \
+        maj_axis = 2 * \
             np.sqrt((((i + k) + np.sqrt((i - k) * (i - k) + 4 * j * j))
                     * 0.5) / moments["m00"])
-        minAxis = 2 * \
+        min_axis = 2 * \
             np.sqrt((((i + k) - np.sqrt((i - k) * (i - k) + 4 * j * j))
                     * 0.5) / moments["m00"])
 
-        return {"center": [x, y], "orientation": orientation, "major_axis": majAxis, "minor_axis": minAxis}
+        return {"center": [x, y], "orientation": orientation, "major_axis": maj_axis, "minor_axis": min_axis}
 
     @staticmethod
     def modulo(angle):
@@ -151,20 +165,27 @@ class BaseDetector(metaclass=abc.ABCMeta):
             Is object left oriented.
         ndarray
             Rotated mask.
+        ndarray
+            Rotation matrix.
 
         """
-        rotated_mask = scipy.ndimage.rotate(
-            mask, (features["orientation"]*180)/np.pi, reshape=False, order=0)
-        rotated_mask = np.sum(rotated_mask, axis=1, dtype=np.float64)
-        dist = rotated_mask / np.sum(rotated_mask)
+        rot = cv2.getRotationMatrix2D(center=(
+            mask.shape[1]/2, mask.shape[0]/2), angle=-(features["orientation"]*180)/np.pi, scale=1)
+        new_size = [mask.shape[0]*np.abs(rot[0, 1]) + mask.shape[1]*np.abs(rot[0, 0]),
+                    mask.shape[0]*np.abs(rot[0, 0]) + mask.shape[1]*np.abs(rot[0, 1])]
+        rot[0, 2] += new_size[0]/2 - mask.shape[1]/2
+        rot[1, 2] += new_size[1]/2 - mask.shape[0]/2
+        rotated_mask = cv2.warpAffine(mask, rot, np.intp(new_size))
+        dist = np.sum(rotated_mask, axis=1, dtype=np.float64)
+        dist /= np.sum(dist)
         indexes = np.arange(1, len(dist)+1, dtype=np.float64)
         mean = np.sum(indexes*dist)
         sd = np.sqrt(np.sum((indexes-mean)**2*dist))
         skew = (np.sum(indexes**3*dist) -
                 3 * mean * sd**2 - mean**3) / sd**3
-        if skew > 0:
+        if skew < 0:  # TODO: check why different of https://github.com/FastTrackOrg/FastTrack/blob/7f15492ff0a4a8e62dc217444b298e6402b33dfb/src/tracking.cpp#L197
             features["orientation"] = self.modulo(
                 features["orientation"] - np.pi)
-            return True, rotated_mask
+            return True, rotated_mask, rot
         else:
-            return False, rotated_mask
+            return False, rotated_mask, rot

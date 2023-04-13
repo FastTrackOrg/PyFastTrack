@@ -3,3 +3,5 @@ numpy
 pytest
 scipy
 pytest
+toml
+deepdiff
