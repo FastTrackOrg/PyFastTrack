@@ -33,7 +33,8 @@ def test_get_orientation():
     detector = instance()
     test = detector.get_features(mask)
     detector.get_direction(mask, test)
-    assert pytest.approx(test["orientation"], 0.01) == pytest.approx(np.pi, 0.01)
+    assert pytest.approx(test["orientation"],
+                         0.01) == pytest.approx(np.pi, 0.01)
     mask = scipy.ndimage.rotate(mask, 180)
     test = detector.get_features(mask)
     detector.get_direction(mask, test)
