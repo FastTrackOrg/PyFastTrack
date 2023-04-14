@@ -54,6 +54,27 @@ class Tracker():
         else:
             return 0
 
+    def compute_cost(self, var, norm):
+        """Compute the cost.
+
+        Parameters
+        ----------
+        var : List
+            List of variable.
+        norm : list
+            Normalization coefficient associated to var.
+
+        Returns
+        -------
+        float
+            Cost.
+
+        """
+        cost = 0
+        for i, j in zip(var, norm):
+            cost += self.div(i, j)
+        return cost
+
     def assign(self, prev, current):
         """Find the optimal assignent.
 
@@ -94,8 +115,8 @@ class Tracker():
                     perim = np.abs(l["3"]["perim"] - k["3"]["perim"])
 
                     if distance < self.params["maxDist"]:
-                        cost[i, j] = self.div(distance, self.params["normDist"]) + self.div(angle, self.params["normAngle"]) + self.div(
-                            area, self.params["normArea"]) + self.div(perim, self.params["normPerim"])
+                        cost[i, j] = self.compute_cost([distance, angle, area, perim], [
+                                                       self.params["normDist"], self.params["normAngle"], self.params["normArea"], self.params["normPerim"]])
                         valid.append((i, j))
                     else:
                         cost[i, j] = 1e34
