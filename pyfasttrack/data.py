@@ -1,4 +1,7 @@
 import toml
+import sqlite3
+import pathlib
+import os
 
 
 class Configuration():
@@ -6,13 +9,18 @@ class Configuration():
 
     """
 
-    def read(self, path):
-        """Read a configuration file.
+    def read_toml(self, path):
+        """Read a configuration file from text file.
 
         Parameters
         ----------
         path : str
             Path pointing to the toml file.
+
+        Returns
+        -------
+        Dict
+            Parameters.
 
         """
         try:
@@ -22,7 +30,34 @@ class Configuration():
             print(e)
             return None
 
-    def write(self, path):
+    def read_db(self, path):
+        """Read a configuration file from database.
+
+        Parameters
+        ----------
+        path : str
+            Path pointing to the sqlite database.
+
+        Returns
+        -------
+        Dict
+            Parameters.
+
+        """
+        try:
+            cnx = sqlite3.connect(pathlib.Path(os.path.abspath(path)).as_uri() + "?mode=ro", uri = True)
+            query = cnx.execute("SELECT parameter, value FROM parameter;")
+            self.params = dict()
+            for param, value in query:
+                self.params[param] = value
+            cnx.close()
+            return self.params
+        except Exception as e:
+            print(e)
+            return None
+
+
+    def write_toml(self, path):
         """Write a configuration file.
 
         Parameters
