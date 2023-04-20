@@ -8,8 +8,19 @@ class Tracker():
 
     """
 
-    def __init__(self, params):
+    def __init__(self, params=None, detector=None):
+        if params:
+            self.params = params.copy()
+        self.detector = detector
+        self.is_init = False
+
+    def set_params(params):
         self.params = params.copy()
+        self.is_init = False
+
+    def set_detector(detector):
+        self.detector = detector
+        self.is_init = False
 
     @staticmethod
     def angle_difference(a, b):
@@ -131,3 +142,32 @@ class Tracker():
                     assignment.append(-1)
 
         return assignment
+
+    def reassign(self, past, current, order):
+        """Reassign current based on order.
+
+        Parameters
+        ----------
+        prev : list
+            List of dict of previous detections.
+        current : list
+            List of dict of current detections.
+        order : list
+            Reassingment
+
+        Returns
+        -------
+        list
+            Reordered current.
+
+        """
+        tmp = past
+        for i, j in enumerate(past):
+            if order[i] != -1:
+                tmp[i] = current[order[i]]
+
+        for i, j in enumerate(current):
+            if i not in order:
+                tmp.append(j)
+
+        return tmp

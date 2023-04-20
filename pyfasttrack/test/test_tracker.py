@@ -143,3 +143,37 @@ def test_perim():
         "area": 0, "perim": 30}}, {"0": {"center": (10, 10), "orientation": 10}, "3": {"area": 0, "perim": 10}}]
     test = tracker.assign(past, current)
     assert test == [2, 0, 1]
+
+
+def test_reassign():
+    tracker = tr.Tracker()
+    past = [0, 1, 2]
+    current = [2, 1, 0]
+    order = list(current)
+    test = tracker.reassign(past, current, order)
+    assert test == [0, 1, 2]
+    past = [0, 1, 2]
+    current = [3, 2, 1, 0]
+    order = [3, 2, 1, -1]
+    test = tracker.reassign(past, current, order)
+    assert test == [0, 1, 2, 3]
+    past = [1, 2, 3]
+    current = []
+    order = [-1, -1, -1]
+    test = tracker.reassign(past, current, order)
+    assert test == past
+    past = [1, 2, 3]
+    current = [3, 2]
+    order = [-1, 1, 0]
+    test = tracker.reassign(past, current, order)
+    assert test == past
+    past = [1, 2, 3]
+    current = [3, 2, 4, 1]
+    order = [3, 1, 0]
+    test = tracker.reassign(past, current, order)
+    assert test == [1, 2, 3, 4]
+    past = [1, 2]
+    current = [3, 2, 4, 1]
+    order = [3, 1, -1, -1]
+    test = tracker.reassign(past, current, order)
+    assert test == [1, 2, 3, 4]
