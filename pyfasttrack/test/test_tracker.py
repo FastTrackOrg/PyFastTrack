@@ -177,3 +177,67 @@ def test_reassign():
     order = [3, 1, -1, -1]
     test = tracker.reassign(past, current, order)
     assert test == [1, 2, 3, 4]
+
+
+def test_find_lost():
+    tracker = tr.Tracker()
+    prev = [1, 2, 3]
+    current = [3, 2, 1]
+    order = [2, 1, 0]
+    assert tracker.reassign(prev, current, order) == prev
+    assert tracker.find_lost(order) == []
+    current = [3, 2]
+    order = [-1, 1, 0]
+    assert tracker.reassign(prev, current, order) == prev
+    assert tracker.find_lost(order) == [0]
+    current = [3]
+    order = [-1, -1, 0]
+    assert tracker.reassign(prev, current, order) == prev
+    assert tracker.find_lost(order) == [0, 1]
+    current = []
+    order = [-1, -1, -1]
+    assert tracker.reassign(prev, current, order) == prev
+    assert tracker.find_lost(order) == [0, 1, 2]
+    current = [3, 2, 4, 1]
+    order = [3, 1, 0]
+    assert tracker.reassign(prev, current, order) == [1, 2, 3, 4]
+    assert tracker.find_lost(order) == []
+
+
+def test_clean():
+    tracker = tr.Tracker()
+    tracker.set_params({"maxTime": 0})
+    current = [3, 2, 1]
+    counter = [0, 0, 0]
+    lost = []
+    test_current, test_counter = tracker.clean(current, counter, lost)
+    assert test_current == current
+    assert test_counter == counter
+    tracker.set_params({"maxTime": 10})
+    current = [3, 2, 1]
+    counter = [0, 0, 0]
+    lost = [1]
+    test_current, test_counter = tracker.clean(current, counter, lost)
+    assert test_current == current
+    assert test_counter == [0, 1, 0]
+    tracker.set_params({"maxTime": 10})
+    current = [3, 2, 1]
+    counter = [1, 1, 0]
+    lost = [0, 1]
+    test_current, test_counter = tracker.clean(current, counter, lost)
+    assert test_current == current
+    assert test_counter == [2, 2, 0]
+    tracker.set_params({"maxTime": 10})
+    current = [0, 1, 2]
+    counter = [10, 0, 0]
+    lost = [0]
+    test_current, test_counter = tracker.clean(current, counter, lost)
+    assert test_current == [1, 2]
+    assert test_counter == [0, 0]
+    tracker.set_params({"maxTime": 10})
+    current = [0, 1, 2]
+    counter = [10, 10, 10]
+    lost = [0, 1, 2]
+    test_current, test_counter = tracker.clean(current, counter, lost)
+    assert test_current == []
+    assert test_counter == []

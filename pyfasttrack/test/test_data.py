@@ -46,4 +46,5 @@ def test_add_data_result():
     dat["data"] = {"curv": 0, "area": 1, "perim": 1}
     dat["info"] = {"time": 1, "id": 1}
     test = result.add_data(dat)
+    del result # Close database to delete it avoiding error on windows
     shutil.rmtree("./test/data/tmp/")

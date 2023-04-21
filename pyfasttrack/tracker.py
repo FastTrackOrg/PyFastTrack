@@ -14,13 +14,27 @@ class Tracker():
         self.detector = detector
         self.is_init = False
 
-    def set_params(params):
+    def set_params(self, params):
         self.params = params.copy()
         self.is_init = False
 
-    def set_detector(detector):
+    def set_detector(self, detector):
         self.detector = detector
         self.is_init = False
+
+    def initialize(image):
+        if self.params and self.detector:
+            self.prev_detection = detector.get_features(image)
+            self.is_init = True
+            self.max_id = len(self.prev_detection)
+            self.lost = [0]*len(self.prev_detection)
+
+    def process(image):
+        if is_init():
+            self.current_detection = detector.get_features(image)
+            order = self.assing(self.prev_detection, self.current_detection)
+            self.current_detection = self.reassign(self.prev_detection,
+                                                   self.current_detection, order)
 
     @staticmethod
     def angle_difference(a, b):
@@ -171,3 +185,48 @@ class Tracker():
                 tmp.append(j)
 
         return tmp
+
+    def find_lost(self, assignment):
+        """Find object lost at previous step.
+
+        Parameters
+        ----------
+        assignment : list
+            Assignment indexes.
+
+        Returns
+        -------
+        list
+            Indexes of lost objects.
+
+        """
+        return [i for i, j in enumerate(assignment) if j == -1]
+
+    def clean(self, current, counter, lost):
+        """Delete objects that were lost.
+
+        Parameters
+        ----------
+        current : list
+            List to clean.
+        counter : list
+            Counter of losses.
+        lost : list
+            Lost objects.
+
+        Returns
+        -------
+        list
+            Cleaned list.
+        list
+            Updated counter.
+
+        """
+        counter = [j + 1 if i in lost else 0 for i, j in enumerate(counter)]
+
+        to_delete = sorted([i for i in lost if counter[i] >
+                           self.params["maxTime"]], reverse=True)
+        for i in to_delete:
+            current.pop(i)
+            counter.pop(i)
+        return current, counter
