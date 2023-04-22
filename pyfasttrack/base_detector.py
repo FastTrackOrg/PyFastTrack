@@ -172,14 +172,14 @@ class BaseDetector(metaclass=abc.ABCMeta):
         rot[0, 2] += new_size[0]/2 - mask.shape[1]/2
         rot[1, 2] += new_size[1]/2 - mask.shape[0]/2
         rotated_mask = cv2.warpAffine(mask, rot, np.intp(new_size))
-        dist = np.sum(rotated_mask, axis=1, dtype=np.float64)
+        dist = np.sum(rotated_mask, axis=0, dtype=np.float64)
         dist /= np.sum(dist)
         indexes = np.arange(1, len(dist)+1, dtype=np.float64)
         mean = np.sum(indexes*dist)
         sd = np.sqrt(np.sum((indexes-mean)**2*dist))
         skew = (np.sum(indexes**3*dist) -
                 3 * mean * sd**2 - mean**3) / sd**3
-        if skew < 0:  # TODO: check why different of https://github.com/FastTrackOrg/FastTrack/blob/7f15492ff0a4a8e62dc217444b298e6402b33dfb/src/tracking.cpp#L197
+        if skew > 0:
             features["orientation"] = self.modulo(
                 features["orientation"] - np.pi)
             return True, rotated_mask, rot
