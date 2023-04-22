@@ -22,19 +22,38 @@ class Tracker():
         self.detector = detector
         self.is_init = False
 
-    def initialize(image):
+    def initialize(self, image):
         if self.params and self.detector:
-            self.prev_detection = detector.get_features(image)
+            self.prev_detection = self.detector.process(image)
             self.is_init = True
             self.max_id = len(self.prev_detection)
+            self.id = list(range(self.max_id))
             self.lost = [0]*len(self.prev_detection)
+            self.im = 0
+            for i, j in enumerate(self.prev_detection):
+                j["3"]["time"] = self.im
+                j["3"]["id"] = self.id[i]
+            self.im += 1
 
-    def process(image):
-        if is_init():
-            self.current_detection = detector.get_features(image)
-            order = self.assing(self.prev_detection, self.current_detection)
+    def process(self, image):
+        if self.is_init:
+            self.current_detection = self.detector.process(image)
+            order = self.assign(self.prev_detection, self.current_detection)
+            losts = self.find_lost(order)
             self.current_detection = self.reassign(self.prev_detection,
                                                    self.current_detection, order)
+            while len(self.current_detection) - len(self.id) != 0:
+                self.max_id += 1
+                self.id.append(self.max_id)
+                self.lost.append(0)
+            self.current, self.lost, self.id = self.clean(
+                self.current_detection, self.lost, losts, self.id)
+            for i, j in enumerate(self.current_detection):
+                j["3"]["time"] = self.im
+                j["3"]["id"] = self.id[i]
+            self.im += 1
+            self.prev = self.current
+            return [j for i, j in enumerate(self.current) if i not in losts]
 
     @staticmethod
     def angle_difference(a, b):
@@ -128,9 +147,9 @@ class Tracker():
             cost = np.zeros((len(prev), len(current)))
             valid = []
             for i, l in enumerate(prev):
-                prev_coord = l[self.params["spot"]]
+                prev_coord = l[str(int(self.params["spot"]))]
                 for j, k in enumerate(current):
-                    current_coord = k[self.params["spot"]]
+                    current_coord = k[str(int(self.params["spot"]))]
 
                     distance = np.sqrt((prev_coord["center"][0] - current_coord["center"][0])**2 + (
                         prev_coord["center"][1] - current_coord["center"][1])**2)
@@ -148,10 +167,11 @@ class Tracker():
 
             row, col = linear_sum_assignment(cost)
 
+            # TODO: optimize
             assignment = []
-            for i in zip(row, col):
-                if i in valid:
-                    assignment.append(i[1])
+            for i, __ in enumerate(prev):
+                if i in row and (i, col[list(row).index(i)]) in valid:
+                    assignment.append(col[list(row).index(i)])
                 else:
                     assignment.append(-1)
 
@@ -202,8 +222,9 @@ class Tracker():
         """
         return [i for i, j in enumerate(assignment) if j == -1]
 
-    def clean(self, current, counter, lost):
+    def clean(self, current, counter, lost, idty):
         """Delete objects that were lost.
+        Only counter is copied in this function. Other lists act as pointer.
 
         Parameters
         ----------
@@ -213,6 +234,8 @@ class Tracker():
             Counter of losses.
         lost : list
             Lost objects.
+        idty : list
+            Objects' identity
 
         Returns
         -------
@@ -229,4 +252,5 @@ class Tracker():
         for i in to_delete:
             current.pop(i)
             counter.pop(i)
-        return current, counter
+            idty.pop(i)
+        return current, counter, idty

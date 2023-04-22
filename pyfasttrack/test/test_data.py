@@ -23,11 +23,13 @@ def test__get_key():
     assert [ref["lightBack"], ref["yTop"]
             ] == conf.get_keys(["lightBack", "yTop"])
 
+
 def test_read_db():
     ref = toml.load("./test/data/cfg.toml")["parameters"]
     conf = data.Configuration()
     test = conf.read_db("./test/data/tracking.db")
     assert ref == test
+
 
 def test_read_wrong():
     conf = data.Configuration()
@@ -36,15 +38,18 @@ def test_read_wrong():
     test = conf.read_toml("./test/data/cfg_.toml")
     assert test == None
 
+
 def test_add_data_result():
     os.mkdir("./test/data/tmp/")
     result = data.Result("./test/data/tmp/")
     dat = dict()
-    dat["head"] = {"center": (0, 0), "orientation": 0, "minor_axis": 1, "major_axis": 1}
-    dat["body"] = {"center": (0, 0), "orientation": 0, "minor_axis": 1, "major_axis": 1}
-    dat["tail"] = {"center": (0, 0), "orientation": 0, "minor_axis": 1, "major_axis": 1}
-    dat["data"] = {"curv": 0, "area": 1, "perim": 1}
-    dat["info"] = {"time": 1, "id": 1}
+    dat["0"] = {"center": (0, 0), "orientation": 0,
+                "minor_axis": 1, "major_axis": 1}
+    dat["2"] = {"center": (0, 0), "orientation": 0,
+                "minor_axis": 1, "major_axis": 1}
+    dat["1"] = {"center": (0, 0), "orientation": 0,
+                "minor_axis": 1, "major_axis": 1}
+    dat["3"] = {"curv": 0, "area": 1, "perim": 1, "time": 1, "id": 1}
     test = result.add_data(dat)
-    del result # Close database to delete it avoiding error on windows
+    del result  # Close database to delete it avoiding error on windows
     shutil.rmtree("./test/data/tmp/")

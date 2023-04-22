@@ -209,35 +209,50 @@ def test_clean():
     tracker.set_params({"maxTime": 0})
     current = [3, 2, 1]
     counter = [0, 0, 0]
+    idty = [0, 1, 2]
     lost = []
-    test_current, test_counter = tracker.clean(current, counter, lost)
+    test_current, test_counter, test_idty = tracker.clean(
+        current, counter, lost, idty)
     assert test_current == current
     assert test_counter == counter
+    assert test_idty == idty
     tracker.set_params({"maxTime": 10})
     current = [3, 2, 1]
     counter = [0, 0, 0]
+    idty = [0, 1, 2]
     lost = [1]
-    test_current, test_counter = tracker.clean(current, counter, lost)
+    test_current, test_counter, test_idty = tracker.clean(
+        current, counter, lost, idty)
     assert test_current == current
     assert test_counter == [0, 1, 0]
+    assert test_idty == idty
     tracker.set_params({"maxTime": 10})
     current = [3, 2, 1]
     counter = [1, 1, 0]
+    idty = [0, 1, 2]
     lost = [0, 1]
-    test_current, test_counter = tracker.clean(current, counter, lost)
+    test_current, test_counter, test_idty = tracker.clean(
+        current, counter, lost, idty)
     assert test_current == current
     assert test_counter == [2, 2, 0]
+    assert test_idty == idty
     tracker.set_params({"maxTime": 10})
     current = [0, 1, 2]
     counter = [10, 0, 0]
+    idty = [0, 1, 2]
     lost = [0]
-    test_current, test_counter = tracker.clean(current, counter, lost)
+    test_current, test_counter, test_idty = tracker.clean(
+        current, counter, lost, idty)
     assert test_current == [1, 2]
     assert test_counter == [0, 0]
+    assert test_idty == [1, 2]
     tracker.set_params({"maxTime": 10})
     current = [0, 1, 2]
     counter = [10, 10, 10]
+    idty = [0, 1, 2]
     lost = [0, 1, 2]
-    test_current, test_counter = tracker.clean(current, counter, lost)
+    test_current, test_counter, test_idty = tracker.clean(
+        current, counter, lost, idty)
     assert test_current == []
     assert test_counter == []
+    assert test_idty == []

@@ -26,9 +26,8 @@ class Configuration():
         """
         try:
             self.params = toml.load(path)
-            return self.params
+            return self.params["parameters"]
         except Exception as e:
-            print(e)
             return None
 
     def read_db(self, path):
@@ -111,40 +110,51 @@ class Result():
 
     """
 
-    def add_data(self, data):
+    def add_data(self, dat):
         """Append data in the database.
 
             Parameters
             ----------
-            data : dict
+            dat : dict or list of dicts
                 Data.
 
         """
-        query = self.cnx.execute("INSERT INTO tracking(xHead, yHead, tHead, xTail, yTail, tTail, xBody, yBody, tBody, curvature, areaBody,"
-                                 "perimeterBody, headMajorAxisLength, headMinorAxisLength, headExcentricity, tailMajorAxisLength,"
-                                 "tailMinorAxisLength, tailExcentricity, bodyMajorAxisLength, bodyMinorAxisLength, bodyExcentricity,"
-                                 "imageNumber, id) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ",
-                                 (data["head"]["center"][0], data["head"]["center"][1], data["head"]["orientation"],
-                                  data["tail"]["center"][0], data["tail"]["center"][1], data["tail"]["orientation"],
-                                  data["body"]["center"][0], data["body"]["center"][1], data["body"]["orientation"],
-                                  data["data"]["curv"], data["data"]["area"], data["data"]["perim"],
-                                  data["head"]["major_axis"], data["head"]["minor_axis"], np.sqrt(
-                                     1-(data["head"]["minor_axis"]/data["head"]["major_axis"])**2),
-                                  data["tail"]["major_axis"], data["tail"]["minor_axis"], np.sqrt(
-                                     1-(data["tail"]["minor_axis"]/data["tail"]["major_axis"])**2),
-                                  data["body"]["major_axis"], data["body"]["minor_axis"], np.sqrt(
-                                     1-(data["body"]["minor_axis"]/data["body"]["major_axis"])**2),
-                                  data["info"]["time"], data["info"]["id"]))
+        cursor = self.cnx.cursor()
+        if not isinstance(dat, list):
+            dat = [dat]
+        for data in dat:
+            cursor.execute("INSERT INTO tracking (xHead, yHead, tHead, xTail, yTail, tTail, xBody, yBody, tBody, curvature, areaBody,"
+                           "perimeterBody, headMajorAxisLength, headMinorAxisLength, headExcentricity, tailMajorAxisLength,"
+                           "tailMinorAxisLength, tailExcentricity, bodyMajorAxisLength, bodyMinorAxisLength, bodyExcentricity,"
+                           "imageNumber, id) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ",
+                           (data["0"]["center"][0], data["0"]["center"][1], data["0"]["orientation"],
+                            data["1"]["center"][0], data["1"]["center"][1], data["1"]["orientation"],
+                            data["2"]["center"][0], data["2"]["center"][1], data["2"]["orientation"],
+                            0, data["3"]["area"], data["3"]["perim"],
+                            data["0"]["major_axis"], data["0"]["minor_axis"], np.sqrt(
+                               1-(data["0"]["minor_axis"]/data["0"]["major_axis"])**2),
+                            data["1"]["major_axis"], data["1"]["minor_axis"], np.sqrt(
+                               1-(data["1"]["minor_axis"]/data["1"]["major_axis"])**2),
+                            data["2"]["major_axis"], data["2"]["minor_axis"], np.sqrt(
+                               1-(data["2"]["minor_axis"]/data["2"]["major_axis"])**2),
+                            data["3"]["time"], data["3"]["id"]))
+        self.cnx.commit()
+        cursor.close()
 
     def __init__(self, path):
-        self.cnx = sqlite3.connect(os.path.abspath(path) + "/tracking.db")
-        query = self.cnx.execute("CREATE TABLE tracking ( xHead REAL, yHead REAL, tHead REAL, xTail REAL,"
-                                 "yTail REAL, tTail REAL, xBody REAL, yBody REAL, tBody REAL,"
-                                 "curvature REAL, areaBody REAL, perimeterBody REAL,"
-                                 "headMajorAxisLength REAL, headMinorAxisLength REAL,"
-                                 "headExcentricity REAL, tailMajorAxisLength REAL, tailMinorAxisLength REAL,"
-                                 "tailExcentricity REAL, bodyMajorAxisLength REAL, bodyMinorAxisLength REAL,"
-                                 "bodyExcentricity REAL, imageNumber INTEGER, id INTEGER)")
+        path = os.path.abspath(path + "/Tracking_Result/")
+        os.makedirs(path)
+        self.cnx = sqlite3.connect(path + "/tracking.db")
+        cursor = self.cnx.cursor()
+        cursor.execute("CREATE TABLE tracking ( xHead REAL, yHead REAL, tHead REAL, xTail REAL,"
+                       "yTail REAL, tTail REAL, xBody REAL, yBody REAL, tBody REAL,"
+                       "curvature REAL, areaBody REAL, perimeterBody REAL,"
+                       "headMajorAxisLength REAL, headMinorAxisLength REAL,"
+                       "headExcentricity REAL, tailMajorAxisLength REAL, tailMinorAxisLength REAL,"
+                       "tailExcentricity REAL, bodyMajorAxisLength REAL, bodyMinorAxisLength REAL,"
+                       "bodyExcentricity REAL, imageNumber INTEGER, id INTEGER)")
+        self.cnx.commit()
+        cursor.close()
 
     def __del__(self):
         self.cnx.close()
