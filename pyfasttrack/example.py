@@ -8,6 +8,7 @@ config = dat.Configuration()
 params = config.read_toml(
     "test/data/images/Groundtruth/Tracking_Result/cfg.toml")
 
+# Data saver
 saver = dat.Result("test/data/images/")
 
 # Set up detector
@@ -21,7 +22,8 @@ tracker.set_params(params)
 tracker.set_detector(detector)
 
 camera = cv2.VideoCapture("test/data/images/frame_%06d.pgm")
-tracker.initialize(cv2.cvtColor(camera.read()[1], cv2.COLOR_BGR2GRAY))
+dat = tracker.initialize(cv2.cvtColor(camera.read()[1], cv2.COLOR_BGR2GRAY))
+saver.add_data(dat)
 
 ret = True
 while (ret):

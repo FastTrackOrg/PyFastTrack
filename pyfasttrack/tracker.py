@@ -34,6 +34,7 @@ class Tracker():
                 j["3"]["time"] = self.im
                 j["3"]["id"] = self.id[i]
             self.im += 1
+            return self.prev_detection
 
     def process(self, image):
         if self.is_init:
