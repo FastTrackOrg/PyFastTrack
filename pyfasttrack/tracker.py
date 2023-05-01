@@ -53,8 +53,8 @@ class Tracker():
                 j["3"]["time"] = self.im
                 j["3"]["id"] = self.id[i]
             self.im += 1
-            self.prev = self.current
-            return [j for i, j in enumerate(self.current) if i not in losts]
+            self.prev_detection = self.current_detection
+            return [j for i, j in enumerate(self.current_detection) if i not in losts]
 
     @staticmethod
     def angle_difference(a, b):
