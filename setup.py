@@ -5,11 +5,14 @@ setup(
     version="0.0.0",
     author="Benjamin Gallois",
     author_email="benjamin.gallois@fasttrack.sh",
-    description="Easy-to-use solution to integrate the tracking technology of the FastTrack software in Python projects. "
+    description="Easy-to-use solution to integrate the tracking technology of the FastTrack software in Python projects.",
     url="https://github.com/FastTrackOrg/PyFastTrack",
     packages=['pyfasttrack'],
     install_requires=[
-        'opencv',
+        'ultralytics',
+        'opencv-python',
+        'scipy',
+        'toml',
         'numpy',],
     license='MIT',
     python_requires='>=3.9',
