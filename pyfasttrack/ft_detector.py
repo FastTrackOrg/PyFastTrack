@@ -1,9 +1,9 @@
-import base_detector as detection
+from .base_detector import BaseDetector
 import numpy as np
 import cv2
 
 
-class FtDetector(detection.BaseDetector):
+class FtDetector(BaseDetector):
     def __init__(self, params):
         self.params = params
 

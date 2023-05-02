@@ -1,4 +1,4 @@
-import base_detector as detection
+from .base_detector import BaseDetector
 import numpy as np
 import cv2
 from ultralytics import YOLO
@@ -8,7 +8,7 @@ logging.getLogger("ultralytics").setLevel(logging.WARNING)
 logging.getLogger("tensorflow").setLevel(logging.WARNING)
 
 
-class YoloDetector(detection.BaseDetector):
+class YoloDetector(BaseDetector):
     def __init__(self, params):
         self.params = params
         self.model = YOLO(self.params["model"])

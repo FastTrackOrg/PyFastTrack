@@ -1,4 +1,4 @@
-import ft_detector
+from ..ft_detector import FtDetector
 import toml
 import cv2
 import pytest
@@ -6,7 +6,7 @@ import pytest
 
 def test_detect():
     params = toml.load("./test/data/cfg.toml")["parameters"]
-    ft = ft_detector.FtDetector(params)
+    ft = FtDetector(params)
     background = cv2.imread("./test/data/background.pgm", cv2.IMREAD_GRAYSCALE)
     ft.set_background(background)
     image = cv2.imread("./test/data/frame.pgm", cv2.IMREAD_GRAYSCALE)

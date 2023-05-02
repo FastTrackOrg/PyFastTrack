@@ -1,5 +1,5 @@
 import numpy as np
-import base_detector
+from .base_detector import BaseDetector
 from scipy.optimize import linear_sum_assignment
 
 
@@ -73,9 +73,9 @@ class Tracker():
             a-b.
 
         """
-        a = base_detector.BaseDetector.modulo(a)
-        b = base_detector.BaseDetector.modulo(b)
-        return -(base_detector.BaseDetector.modulo(a - b + np.pi) - np.pi)
+        a = BaseDetector.modulo(a)
+        b = BaseDetector.modulo(b)
+        return -(BaseDetector.modulo(a - b + np.pi) - np.pi)
 
     @staticmethod
     def div(a, b):

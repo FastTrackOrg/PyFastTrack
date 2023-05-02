@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="pyfasttrack",
-    version="0.0.0",
+    version="0.0.2",
     author="Benjamin Gallois",
     author_email="benjamin.gallois@fasttrack.sh",
     description="Easy-to-use solution to integrate the tracking technology of the FastTrack software in Python projects.",
