@@ -1,6 +1,6 @@
 # PyFastTrack
 
-[![Linux tests](https://github.com/FastTrackOrg/PyFastTrack/actions/workflows/linux_tests.yml/badge.svg)](https://github.com/FastTrackOrg/PyFastTrack/actions/workflows/linux_tests.yml) [![Windows tests](https://github.com/FastTrackOrg/PyFastTrack/actions/workflows/win_tests.yml/badge.svg)](https://github.com/FastTrackOrg/PyFastTrack/actions/workflows/win_tests.yml) [![Macos tests](https://github.com/FastTrackOrg/PyFastTrack/actions/workflows/macos_tests.yml/badge.svg)](https://github.com/FastTrackOrg/PyFastTrack/actions/workflows/macos_tests.yml)
+[![Linux tests](https://github.com/FastTrackOrg/PyFastTrack/actions/workflows/linux_tests.yml/badge.svg)](https://github.com/FastTrackOrg/PyFastTrack/actions/workflows/linux_tests.yml) [![Windows tests](https://github.com/FastTrackOrg/PyFastTrack/actions/workflows/win_tests.yml/badge.svg)](https://github.com/FastTrackOrg/PyFastTrack/actions/workflows/win_tests.yml) [![Macos tests](https://github.com/FastTrackOrg/PyFastTrack/actions/workflows/macos_tests.yml/badge.svg)](https://github.com/FastTrackOrg/PyFastTrack/actions/workflows/macos_tests.yml) [![Documentation Status](https://readthedocs.org/projects/pyfasttrack/badge/?version=latest)](https://pyfasttrack.readthedocs.io/en/latest/?badge=latest)
 
 ## About
 
@@ -18,7 +18,7 @@ PyFastTrack is actively developed at a pace depending on the project [funding](h
 * YOLOv8 segmentation detector class.
 
 ## Usage
- 
+
 PyFastTrack can be integrated using the high-level API see [this example](https://github.com/FastTrackOrg/PyFastTrack/blob/master/pyfasttrack/example.py):
 
 ```python

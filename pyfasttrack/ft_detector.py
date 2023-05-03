@@ -4,10 +4,35 @@ import cv2
 
 
 class FtDetector(BaseDetector):
+    """Implement the classic FastTrack detector.
+
+    """
+
     def __init__(self, params):
+        """Initialize the detector.
+
+        Parameters
+        ----------
+        params : dict
+            Parameters.
+
+        """
         self.params = params
 
     def detect(self, image):
+        """Detect objects
+
+        Parameters
+        ----------
+        image : ndarray
+            Image as GRAYSCALE.
+
+        Returns
+        -------
+        list
+            List of masks as [(mask, left_corner), ...].
+
+        """
         if int(self.params["lightBack"]) == 0:
             image = cv2.subtract(self.background, image)
         else:
@@ -40,4 +65,12 @@ class FtDetector(BaseDetector):
         return masks
 
     def set_background(self, image):
+        """Set the background image.
+
+        Parameters
+        ----------
+        image : ndarray
+            Background image.
+
+        """
         self.background = np.copy(image)

@@ -9,20 +9,59 @@ class Tracker():
     """
 
     def __init__(self, params=None, detector=None):
+        """Initialize the tracker.
+
+        Parameters
+        ----------
+        params : dict
+            Parameters.
+        detector : BaseDetector
+            Detector that is an implementation of the BaseDetector.
+
+        """
         if params:
             self.params = params.copy()
         self.detector = detector
         self.is_init = False
 
     def set_params(self, params):
+        """Set the parameters.
+
+        Parameters
+        ----------
+        params : dict
+            Parameters.
+
+        """
         self.params = params.copy()
         self.is_init = False
 
     def set_detector(self, detector):
+        """Set the detector.
+
+        Parameters
+        ----------
+        detector : BaseDetector
+            Detector that is an implementation of the BaseDetector.
+
+        """
         self.detector = detector
         self.is_init = False
 
     def initialize(self, image):
+        """Initialize the tracker.
+
+        Parameters
+        ----------
+        image : ndarray
+            Image, channels depending on the detector.
+
+        Returns
+        -------
+        list
+            List of detected objects as dict.
+
+        """
         if self.params and self.detector:
             self.prev_detection = self.detector.process(image)
             self.is_init = True
@@ -37,6 +76,19 @@ class Tracker():
             return self.prev_detection
 
     def process(self, image):
+        """Process an image.
+
+        Parameters
+        ----------
+        image : ndarray
+            Image, channels depending on the detector.
+
+        Returns
+        -------
+        list
+            List of detected objects as dict.
+
+        """
         if self.is_init:
             self.current_detection = self.detector.process(image)
             order = self.assign(self.prev_detection, self.current_detection)
