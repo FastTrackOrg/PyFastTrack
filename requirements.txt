@@ -6,3 +6,4 @@ scipy
 pytest
 toml
 deepdiff
+sentry-sdk
